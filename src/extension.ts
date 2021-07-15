@@ -11,9 +11,19 @@ const wrapSelection = (editor, symbol) => {
 	editor.edit((b) => {
 		selections.forEach((selection) => {
 			if (!selection.isEmpty) {
-				const text = document.getText(selection);
+				const start = selection.start;
+				const line = start.line;
+				const { text: lineContent } = document.lineAt(line);
 
-				b.replace(selection, wrap(text, symbol));
+				const spaceMatch = lineContent.match(/^(\s*)/)
+				let indent = '';
+				if (spaceMatch) {
+					indent = spaceMatch[1];
+				}
+
+				const text = document.getText(selection);
+				const newText = `${text}\n${indent}${wrap(text, symbol)}`
+				b.replace(selection, newText);
 			}
 		});
 	});
